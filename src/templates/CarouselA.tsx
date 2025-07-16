@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 // Estilos como string, para React + exportador
 export const carouselAStyles = `
-  .carrusel-container {
+  .carouselA {
     position: relative;
     width: 600px;
     margin: auto;
@@ -33,21 +33,37 @@ export const carouselAStyles = `
     padding: 10px;
     border-radius: 50%;
     z-index: 1;
+    transition: background-color 0.2s ease;
+  }
+
+  .flecha:hover {
+    background: rgba(255,255,255,0.8);
   }
 
   .izquierda { left: 10px; }
   .derecha { right: 10px; }
 `;
 
-// Script usado solo para la exportación HTML (puede mantenerse igual)
+// Script corregido para funcionar en HTML exportado
 export const carouselAScript = `
   let index = 0;
+  const slides = document.querySelectorAll('.slideA');
+  const slidesContainer = document.getElementById('slidesA');
+  
   function moverA(dir) {
-    const total = document.querySelectorAll('.slideA').length;
+    const total = slides.length;
     index = (index + dir + total) % total;
-    document.getElementById('slidesA').style.transform = 'translateX(' + (-600 * index) + 'px)';
+    if (slidesContainer) {
+      slidesContainer.style.transform = 'translateX(' + (-600 * index) + 'px)';
+    }
   }
-  window.onload = () => moverA(0);
+  
+  // Inicializar al cargar la página
+  window.addEventListener('load', () => {
+    if (slidesContainer) {
+      slidesContainer.style.transform = 'translateX(0px)';
+    }
+  });
 `;
 
 type CarouselAProps = { images: string[] };
@@ -70,12 +86,13 @@ export const CarouselA: React.FC<CarouselAProps> = ({ images }) => {
   };
 
   return (
-    <div className="carrusel-container">
+    <div className="carouselA">
       <button className="flecha izquierda" onClick={() => handleMove(-1)}>
         ←
       </button>
       <div
         className="slides"
+        id="slidesA"
         style={{ transform: `translateX(${-600 * index}px)` }}
       >
         {images.map((src, idx) => (

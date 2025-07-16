@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Export - Carousel A</title>
+    <style>
+        .carouselA {
+            position: relative;
+            width: 600px;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        .slides {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .slideA {
+            min-width: 600px;
+            height: 400px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+        }
+
+        .flecha {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 30px;
+            background: rgba(255, 255, 255, 0.6);
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            z-index: 1;
+            transition: background-color 0.2s ease;
+        }
+
+        .flecha:hover {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .izquierda {
+            left: 10px;
+        }
+
+        .derecha {
+            right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Test de Exportación - Carousel A</h1>
+    <p>Este es un test para verificar que el CSS y JS se aplican correctamente.</p>
+
+    <div class="carouselA">
+        <button class="flecha izquierda" onclick="moverA(-1)">←</button>
+        <div class="slides" id="slidesA">
+            <div class="slideA" style="background-image:url('https://picsum.photos/id/1015/600/400')"></div>
+            <div class="slideA" style="background-image:url('https://picsum.photos/id/1018/600/400')"></div>
+            <div class="slideA" style="background-image:url('https://picsum.photos/id/1020/600/400')"></div>
+        </div>
+        <button class="flecha derecha" onclick="moverA(1)">→</button>
+    </div>
+
+    <script>
+        let index = 0;
+        const slides = document.querySelectorAll('.slideA');
+        const slidesContainer = document.getElementById('slidesA');
+
+        function moverA(dir) {
+            const total = slides.length;
+            index = (index + dir + total) % total;
+            if (slidesContainer) {
+                slidesContainer.style.transform = 'translateX(' + (-600 * index) + 'px)';
+            }
+        }
+
+        // Inicializar al cargar la página
+        window.addEventListener('load', () => {
+            if (slidesContainer) {
+                slidesContainer.style.transform = 'translateX(0px)';
+            }
+        });
+    </script>
+</body>
+
+</html>

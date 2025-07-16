@@ -7,7 +7,7 @@ export const carouselBStyles = `
     text-align: center;
   }
 
-  .main-slide {
+  .main-slideB {
     width: 100%;
     height: 400px;
     background-size: cover;
@@ -24,7 +24,7 @@ export const carouselBStyles = `
     flex-wrap: wrap;
   }
 
-  .thumb {
+  .thumbB {
     width: 100px;
     height: 70px;
     background-size: cover;
@@ -32,10 +32,15 @@ export const carouselBStyles = `
     border: 2px solid transparent;
     border-radius: 5px;
     cursor: pointer;
+    transition: border-color 0.2s ease;
   }
 
-  .thumb.active {
+  .thumbB.active {
     border-color: #007bff;
+  }
+
+  .thumbB:hover {
+    border-color: #0056b3;
   }
 
   .arrow-buttons {
@@ -52,35 +57,53 @@ export const carouselBStyles = `
     padding: 8px 12px;
     cursor: pointer;
     border-radius: 5px;
+    transition: background-color 0.2s ease;
+  }
+
+  .arrow-buttons button:hover {
+    background: rgba(0,0,0,0.4);
   }
 `;
 
 export const carouselBScript = `
   let currentIndexB = 0;
+  const thumbs = document.querySelectorAll('.thumbB');
+  const mainSlide = document.querySelector('.main-slideB');
+  
   function showSlideB(index) {
-    const slides = document.querySelectorAll('.thumbB');
-    const main = document.querySelector('.main-slideB');
-    if (!main || !slides.length) return;
+    if (!mainSlide || !thumbs.length) return;
+    
     currentIndexB = index;
-    main.style.backgroundImage = slides[index].style.backgroundImage;
-    slides.forEach((t, i) => {
-      t.classList.toggle('active', i === index);
+    const selectedThumb = thumbs[index];
+    
+    if (selectedThumb) {
+      mainSlide.style.backgroundImage = selectedThumb.style.backgroundImage;
+    }
+    
+    // Actualizar estado activo
+    thumbs.forEach((thumb, i) => {
+      thumb.classList.toggle('active', i === index);
     });
   }
 
   function prevSlideB() {
-    const slides = document.querySelectorAll('.thumbB');
-    const total = slides.length;
-    showSlideB((currentIndexB - 1 + total) % total);
+    const total = thumbs.length;
+    const newIndex = (currentIndexB - 1 + total) % total;
+    showSlideB(newIndex);
   }
 
   function nextSlideB() {
-    const slides = document.querySelectorAll('.thumbB');
-    const total = slides.length;
-    showSlideB((currentIndexB + 1) % total);
+    const total = thumbs.length;
+    const newIndex = (currentIndexB + 1) % total;
+    showSlideB(newIndex);
   }
 
-  window.onload = () => showSlideB(0);
+  // Inicializar al cargar la página
+  window.addEventListener('load', () => {
+    if (thumbs.length > 0) {
+      showSlideB(0);
+    }
+  });
 `;
 
 type CarouselBProps = { images: string[] };
@@ -110,14 +133,14 @@ export const CarouselB: React.FC<CarouselBProps> = ({ images }) => {
         <button onClick={handleNext}>→</button>
       </div>
       <div
-        className="main-slide"
+        className="main-slideB"
         style={{ backgroundImage: `url(${images[currentIndex]})` }}
       ></div>
       <div className="thumbs">
         {images.map((src, idx) => (
           <div
             key={idx}
-            className={`thumb ${idx === currentIndex ? "active" : ""}`}
+            className={`thumbB ${idx === currentIndex ? "active" : ""}`}
             style={{ backgroundImage: `url(${src})` }}
             onClick={() => handleSelect(idx)}
           ></div>
