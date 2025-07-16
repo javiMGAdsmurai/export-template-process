@@ -13,6 +13,12 @@ Una vez que la app esté cargada, abre las herramientas de desarrollador (F12) y
 // Probar exportación completa
 window.testExport()
 
+// Probar compatibilidad con Google Ads
+window.testGoogleAdsCompatibility()
+
+// Generar ZIP de prueba para Google Ads
+window.generateGoogleAdsTestZIP()
+
 // Probar todos los templates
 window.testAllTemplates()
 
@@ -65,6 +71,8 @@ window.createHTMLPreview(template, data);
 - `window.debugHTML()` - Debug detallado
 - `window.createHTMLPreview()` - Preview HTML
 - `window.testAllTemplates()` - Prueba todos los templates
+- `window.testGoogleAdsCompatibility()` - Prueba compatibilidad Google Ads
+- `window.generateGoogleAdsTestZIP()` - Generar ZIP para Google Ads
 
 ### 6. Verificaciones Automáticas
 
@@ -118,4 +126,81 @@ El sistema está optimizado para:
 - DV360 (Display & Video 360)
 - Navegadores modernos
 - Servidores web estáticos
-- Políticas de seguridad de Google Ads 
+- Políticas de seguridad de Google Ads
+
+## 🔧 Cambios Específicos para Google Ads
+
+### Problema Resuelto: "Zip file contents check"
+
+**Problema**: El validador de Google Ads rechazaba los ZIPs por contenido incorrecto.
+
+**Solución Implementada**:
+
+1. **Estructura ZIP Simplificada**:
+   - ✅ Solo incluye `index.html`
+   - ❌ Eliminados archivos innecesarios (README.md, config.json, styles.css, script.js)
+   - ✅ CSS y JS integrados inline en el HTML
+
+2. **Configuración de Compresión**:
+   - ✅ Compresión DEFLATE nivel 6
+   - ✅ Optimizado para Google Ads
+
+3. **Verificaciones Específicas**:
+   ```javascript
+   // Ejecutar para verificar compatibilidad
+   window.testGoogleAdsCompatibility()
+   ```
+
+### Funciones Específicas para Google Ads
+
+#### `window.testGoogleAdsCompatibility()`
+Verifica que el ZIP cumple con las especificaciones de Google Ads:
+- ✅ Solo contiene `index.html`
+- ✅ Tamaño optimizado
+- ✅ CSS y JS inline
+- ✅ Sin referencias externas
+
+#### `window.generateGoogleAdsTestZIP()`
+Genera un ZIP de prueba listo para subir al validador:
+- ✅ Descarga automática del archivo
+- ✅ Nombre: `google-ads-test.zip`
+- ✅ Listo para subir a https://h5validator.appspot.com/dcm/asset
+
+### Estructura del ZIP para Google Ads
+
+```
+google-ads-test.zip
+└── index.html (con CSS y JS integrados)
+```
+
+**Antes (❌ Rechazado)**:
+```
+template.zip
+├── index.html
+├── styles.css
+├── script.js
+├── README.md
+└── config.json
+```
+
+**Ahora (✅ Aceptado)**:
+```
+template.zip
+└── index.html (todo integrado)
+```
+
+### Verificación en el Validador
+
+1. Ejecuta `window.generateGoogleAdsTestZIP()`
+2. Descarga el archivo `google-ads-test.zip`
+3. Sube a https://h5validator.appspot.com/dcm/asset
+4. Verifica que pasa todas las pruebas
+
+### Resultados Esperados en el Validador
+
+- ✅ **Zip file contents check**: PASS
+- ✅ **HTML validation**: PASS
+- ✅ **CSS validation**: PASS
+- ✅ **JavaScript validation**: PASS
+- ✅ **Asset size**: PASS
+- ✅ **Compatibility**: PASS 

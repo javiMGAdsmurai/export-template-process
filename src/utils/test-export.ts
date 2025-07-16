@@ -1,6 +1,7 @@
 // Archivo de prueba para verificar la exportación
 import { exportTemplateAsZIP, generateGoogleAdsStructure } from "./exporter";
 import { templates } from "../templates/templates";
+import JSZip from "jszip";
 
 // Función para probar la exportación
 export async function testExport() {
@@ -192,6 +193,113 @@ export async function testAllTemplates() {
   }
 }
 
+// Función específica para probar compatibilidad con Google Ads
+export async function testGoogleAdsCompatibility() {
+  console.log("🔍 Probando compatibilidad con Google Ads...");
+  
+  const template = templates[0]; // Carrusel A
+  const data = {
+    images: [
+      "https://picsum.photos/id/1015/600/400",
+      "https://picsum.photos/id/1018/600/400",
+      "https://picsum.photos/id/1020/600/400"
+    ]
+  };
+  
+  try {
+    // Generar ZIP
+    const zipBlob = await exportTemplateAsZIP(template, data);
+    
+    // Verificar estructura del ZIP
+    const zip = new JSZip();
+    const zipContent = await zip.loadAsync(zipBlob);
+    
+    console.log("📦 Contenido del ZIP:");
+    Object.keys(zipContent.files).forEach(filename => {
+      console.log(`  - ${filename}`);
+    });
+    
+    // Verificar que solo contiene index.html
+    const hasOnlyIndexHtml = Object.keys(zipContent.files).length === 1 && 
+                             Object.keys(zipContent.files).includes('index.html');
+    
+    console.log("✅ Solo contiene index.html:", hasOnlyIndexHtml);
+    console.log("✅ Tamaño ZIP:", Math.round(zipBlob.size / 1024), "KB");
+    
+    // Verificar contenido del HTML
+    const htmlContent = await zipContent.file('index.html')?.async('string');
+    if (htmlContent) {
+      const checks = {
+        hasDoctype: htmlContent.includes('<!DOCTYPE html>'),
+        hasHtmlTag: htmlContent.includes('<html'),
+        hasInlineCSS: htmlContent.includes('<style>'),
+        hasInlineJS: htmlContent.includes('<script>'),
+        noExternalRefs: !htmlContent.includes('href="') && !htmlContent.includes('src="'),
+        hasImages: htmlContent.includes('background-image'),
+        hasInteractivity: htmlContent.includes('onclick=')
+      };
+      
+      console.log("🔍 Verificaciones de Google Ads:");
+      Object.entries(checks).forEach(([check, result]) => {
+        console.log(`${result ? '✅' : '❌'} ${check}: ${result}`);
+      });
+    }
+    
+    // Crear URL para descarga
+    const url = URL.createObjectURL(zipBlob);
+    console.log("📥 URL para descarga:", url);
+    
+    return {
+      success: true,
+      zipBlob,
+      url,
+      size: zipBlob.size
+    };
+    
+  } catch (error) {
+    console.error("❌ Error en compatibilidad Google Ads:", error);
+    return {
+      success: false,
+      error
+    };
+  }
+}
+
+// Función para generar ZIP de prueba para Google Ads
+export async function generateGoogleAdsTestZIP() {
+  console.log("🚀 Generando ZIP de prueba para Google Ads...");
+  
+  const template = templates[0]; // Carrusel A
+  const data = {
+    images: [
+      "https://picsum.photos/id/1015/600/400",
+      "https://picsum.photos/id/1018/600/400",
+      "https://picsum.photos/id/1020/600/400"
+    ]
+  };
+  
+  try {
+    const zipBlob = await exportTemplateAsZIP(template, data);
+    
+    // Crear enlace de descarga
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(zipBlob);
+    link.download = "google-ads-test.zip";
+    link.click();
+    URL.revokeObjectURL(link.href);
+    
+    console.log("✅ ZIP descargado: google-ads-test.zip");
+    console.log("📋 Ahora puedes subir este archivo a:");
+    console.log("   https://h5validator.appspot.com/dcm/asset");
+    
+    return zipBlob;
+    
+  } catch (error) {
+    console.error("❌ Error generando ZIP:", error);
+    return null;
+  }
+}
+
 // Exportar para uso en consola
 if (typeof window !== "undefined") {
   (window as any).testExport = testExport;
@@ -199,6 +307,8 @@ if (typeof window !== "undefined") {
   (window as any).debugHTML = debugHTML;
   (window as any).testAllTemplates = testAllTemplates;
   (window as any).autoTestHTML = autoTestHTML;
+  (window as any).testGoogleAdsCompatibility = testGoogleAdsCompatibility;
+  (window as any).generateGoogleAdsTestZIP = generateGoogleAdsTestZIP;
   
   console.log("🧪 Funciones de prueba disponibles:");
   console.log("- window.testExport() - Probar exportación completa");
@@ -206,4 +316,6 @@ if (typeof window !== "undefined") {
   console.log("- window.debugHTML(template, data) - Debug del HTML generado");
   console.log("- window.testAllTemplates() - Probar todos los templates");
   console.log("- window.autoTestHTML() - Generar y abrir HTML automáticamente");
+  console.log("- window.testGoogleAdsCompatibility() - Probar compatibilidad Google Ads");
+  console.log("- window.generateGoogleAdsTestZIP() - Generar ZIP para Google Ads");
 } 

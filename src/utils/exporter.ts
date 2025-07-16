@@ -156,63 +156,18 @@ export async function exportTemplateAsZIP(
   
   const zip = new JSZip();
   
-  // Agregar archivos principales
+  // SOLO incluir index.html - Google Ads requiere solo el archivo principal
+  // El CSS y JS están integrados en el HTML
   zip.file("index.html", structure.html);
-  zip.file("styles.css", structure.css);
-  zip.file("script.js", structure.js);
   
-  // Crear archivo README con instrucciones
-  const readme = `
-# ${template.name} - Google Ads/DV360 Template
-
-## Archivos incluidos:
-- index.html: Archivo principal HTML (con CSS y JS integrados)
-- styles.css: Estilos CSS (archivo separado para referencia)
-- script.js: JavaScript funcional (archivo separado para referencia)
-
-## Instrucciones de uso:
-1. **Opción 1 (Recomendada)**: Abre directamente index.html en el navegador
-2. **Opción 2**: Sube todos los archivos a tu servidor web
-3. Asegúrate de que las imágenes estén accesibles desde las URLs especificadas
-
-## Compatibilidad:
-- Google Ads
-- DV360 (Display & Video 360)
-- Servidores web estáticos
-- Navegadores modernos
-
-## Notas:
-- El CSS y JS están integrados en el HTML para funcionamiento inmediato
-- También se incluyen archivos separados para optimización
-- Compatible con políticas de seguridad de Google Ads
-- Las imágenes deben estar hospedadas en URLs públicas
-`;
-
-  zip.file("README.md", readme.trim());
-  
-  // Crear archivo de configuración para Google Ads
-  const config = {
-    templateName: template.name,
-    templateId: template.id,
-    version: "1.0.0",
-    compatibleWith: ["Google Ads", "DV360"],
-    files: ["index.html", "styles.css", "script.js"],
-    requirements: {
-      images: structure.images || [],
-      externalDependencies: []
-    },
-    features: {
-      inlineStyles: true,
-      inlineScripts: true,
-      responsive: true,
-      touchSupport: true
+  // Generar el archivo ZIP con configuración optimizada para Google Ads
+  return await zip.generateAsync({ 
+    type: "blob",
+    compression: "DEFLATE",
+    compressionOptions: {
+      level: 6
     }
-  };
-  
-  zip.file("config.json", JSON.stringify(config, null, 2));
-  
-  // Generar el archivo ZIP
-  return await zip.generateAsync({ type: "blob" });
+  });
 }
 
 export function downloadZIP(filename: string, blob: Blob) {
