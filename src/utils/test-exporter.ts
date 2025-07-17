@@ -34,7 +34,7 @@ export async function testStructureGeneration() {
         data = testCarouselData;
       }
       
-      const structure = generateGoogleAdsStructure(template, data);
+      const structure = await generateGoogleAdsStructure(template, data);
       
       // Verificar que la estructura tiene todos los campos requeridos
       console.log("✅ HTML generado:", structure.html.length > 0);

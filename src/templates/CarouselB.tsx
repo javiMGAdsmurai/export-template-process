@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from "react";
 
+// Declarar clickTag para TypeScript
+declare global {
+  interface Window {
+    clickTag?: string;
+  }
+}
+
 export const carouselBStyles = `
   .carouselB-container {
     width: 600px;
     margin: auto;
     text-align: center;
+    position: relative;
   }
 
   .main-slideB {
@@ -62,6 +70,37 @@ export const carouselBStyles = `
 
   .arrow-buttons button:hover {
     background: rgba(0,0,0,0.4);
+  }
+
+  /* Botón Buy Now para Google Ads */
+  .buy-now-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .buy-now-btn:hover {
+    background: #0056b3;
+    transform: translateX(-50%) scale(1.05);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+  }
+
+  .buy-now-btn:active {
+    transform: translateX(-50%) scale(0.95);
   }
 `;
 
@@ -146,6 +185,20 @@ export const CarouselB: React.FC<CarouselBProps> = ({ images }) => {
           ></div>
         ))}
       </div>
+      
+      {/* Botón Buy Now para Google Ads */}
+      <a 
+        href="#" 
+        className="buy-now-btn"
+        onClick={(e) => {
+          e.preventDefault();
+          if (window.clickTag) {
+            window.open(window.clickTag);
+          }
+        }}
+      >
+        Buy Now
+      </a>
     </div>
   );
 };

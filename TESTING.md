@@ -44,11 +44,13 @@ window.createHTMLPreview(template, data);
 - **JS inline**: El HTML contiene `<script>` con el JavaScript
 - **Sin referencias externas**: No hay `href="styles.css"` ni `src="script.js"`
 - **Funcionalidad**: Los botones y controles funcionan correctamente
+- **Botón Buy Now**: Aparece en la parte inferior centrado
 
 #### ❌ Problemas comunes:
 - **CSS no se aplica**: Verificar que los estilos están en `<style>` tags
 - **JS no funciona**: Verificar que el script está en `<script>` tags
 - **Referencias externas**: El HTML no debería referenciar archivos externos
+- **Botón Buy Now no aparece**: Verificar que está incluido en el HTML
 
 ### 4. Probar Exportación ZIP
 
@@ -84,6 +86,9 @@ El sistema verifica automáticamente:
 - ✅ Estructura correcta
 - ✅ Funciones JavaScript presentes
 - ✅ Clases CSS correctas
+- ✅ Botón Buy Now presente
+- ✅ ClickTag presente
+- ✅ Texto "Buy Now" presente
 
 ### 7. Solución de Problemas
 
@@ -102,6 +107,11 @@ El sistema verifica automáticamente:
 2. Verificar que las URLs están correctamente escapadas
 3. Probar con URLs de prueba como Picsum
 
+#### Si el botón Buy Now no aparece:
+1. Verificar que está incluido en el HTML generado
+2. Verificar que tiene la clase `buy-now-btn`
+3. Verificar que tiene el `href="javascript:window.open(window.clickTag)"`
+
 ### 8. Resultados Esperados
 
 Al ejecutar `window.testExport()`, deberías ver:
@@ -115,6 +125,9 @@ Al ejecutar `window.testExport()`, deberías ver:
 ✅ Clase carouselA presente: true
 ✅ Contenedor slides presente: true
 ✅ Función moverA presente: true
+✅ Botón Buy Now presente: true
+✅ ClickTag presente: true
+✅ Texto 'Buy Now' presente: true
 ✅ ZIP generado: true
 ✅ URL del ZIP: blob:http://localhost:5175/...
 ```
@@ -137,15 +150,14 @@ El sistema está optimizado para:
 **Solución Implementada**:
 
 1. **Estructura ZIP Simplificada**:
-   - ✅ Solo incluye `index.html`
-   - ❌ Eliminados archivos innecesarios (README.md, config.json, styles.css, script.js)
-   - ✅ CSS y JS integrados inline en el HTML
+   - ❌ **Antes**: ZIP contenía múltiples archivos (`index.html`, `styles.css`, `script.js`, `README.md`, `config.json`)
+   - ✅ **Ahora**: ZIP contiene solo `index.html` con CSS y JS integrados
 
 2. **Configuración de Compresión**:
    - ✅ Compresión DEFLATE nivel 6
-   - ✅ Optimizado para Google Ads
+   - ✅ Optimizado específicamente para Google Ads
 
-3. **Verificaciones Específicas**:
+3. **Funciones de Prueba Específicas**:
    ```javascript
    // Ejecutar para verificar compatibilidad
    window.testGoogleAdsCompatibility()
@@ -159,6 +171,8 @@ Verifica que el ZIP cumple con las especificaciones de Google Ads:
 - ✅ Tamaño optimizado
 - ✅ CSS y JS inline
 - ✅ Sin referencias externas
+- ✅ Botón Buy Now presente
+- ✅ ClickTag presente
 
 #### `window.generateGoogleAdsTestZIP()`
 Genera un ZIP de prueba listo para subir al validador:
@@ -203,4 +217,90 @@ template.zip
 - ✅ **CSS validation**: PASS
 - ✅ **JavaScript validation**: PASS
 - ✅ **Asset size**: PASS
-- ✅ **Compatibility**: PASS 
+- ✅ **Compatibility**: PASS
+
+## 🛒 Botón "Buy Now" para Google Ads
+
+### Especificaciones del Botón
+
+#### Posicionamiento:
+- ✅ **Posición**: Absoluta
+- ✅ **Ubicación**: Parte inferior centrada
+- ✅ **Margen**: 20px desde el borde inferior
+- ✅ **Centrado**: `left: 50%; transform: translateX(-50%)`
+
+#### Estilo:
+- ✅ **Color de fondo**: #007bff (azul)
+- ✅ **Color de texto**: Blanco
+- ✅ **Bordes**: Redondeados (25px)
+- ✅ **Padding**: 12px 24px
+- ✅ **Fuente**: 16px, bold
+- ✅ **Sombra**: Efecto de elevación
+- ✅ **Transiciones**: Suaves en hover y active
+
+#### Funcionalidad:
+- ✅ **ClickTag**: `href="javascript:window.open(window.clickTag)"`
+- ✅ **Target**: `target="_blank"`
+- ✅ **Z-index**: 10-15 (por encima del contenido)
+- ✅ **Hover**: Escala 1.05x y cambio de color
+- ✅ **Active**: Escala 0.95x
+
+### Código del Botón
+
+```html
+<a href="javascript:window.open(window.clickTag)" class="buy-now-btn" target="_blank">
+  Buy Now
+</a>
+```
+
+### CSS del Botón
+
+```css
+.buy-now-btn {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.buy-now-btn:hover {
+  background: #0056b3;
+  transform: translateX(-50%) scale(1.05);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+.buy-now-btn:active {
+  transform: translateX(-50%) scale(0.95);
+}
+```
+
+### Verificaciones del Botón
+
+Al ejecutar las pruebas, verifica que:
+- ✅ El botón aparece en todas las templates
+- ✅ Está posicionado correctamente
+- ✅ Tiene el clickTag implementado
+- ✅ Los estilos se aplican correctamente
+- ✅ Las transiciones funcionan
+- ✅ Es clickeable y funcional
+
+### Templates con Botón Buy Now
+
+1. **Carousel A**: Botón sobre el carrusel
+2. **Carousel B**: Botón sobre el contenedor principal
+3. **Before/After Slider**: Botón sobre el slider
+
+Todos los templates incluyen el botón con las mismas especificaciones para consistencia en Google Ads. 

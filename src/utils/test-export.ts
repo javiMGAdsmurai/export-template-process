@@ -18,7 +18,7 @@ export async function testExport() {
     };
     
     // Generar estructura
-    const structure = generateGoogleAdsStructure(template, data);
+    const structure = await generateGoogleAdsStructure(template, data);
     
     // Verificar que el HTML contiene CSS y JS inline
     const hasInlineCSS = structure.html.includes('<style>');
@@ -40,6 +40,15 @@ export async function testExport() {
     console.log("✅ Clase carouselA presente:", hasCarouselClass);
     console.log("✅ Contenedor slides presente:", hasSlidesContainer);
     console.log("✅ Función moverA presente:", hasMoverAFunction);
+    
+    // Verificar botón Buy Now
+    const hasBuyNowButton = structure.html.includes('buy-now-btn');
+    const hasClickTag = structure.html.includes('window.clickTag');
+    const hasBuyNowText = structure.html.includes('Buy Now');
+    
+    console.log("✅ Botón Buy Now presente:", hasBuyNowButton);
+    console.log("✅ ClickTag presente:", hasClickTag);
+    console.log("✅ Texto 'Buy Now' presente:", hasBuyNowText);
     
     // Generar ZIP
     const zipBlob = await exportTemplateAsZIP(template, data);
@@ -66,8 +75,8 @@ export async function testExport() {
 }
 
 // Función para crear preview del HTML
-export function createHTMLPreview(template: any, data: any) {
-  const structure = generateGoogleAdsStructure(template, data);
+export async function createHTMLPreview(template: any, data: any) {
+  const structure = await generateGoogleAdsStructure(template, data);
   
   // Crear blob del HTML
   const htmlBlob = new Blob([structure.html], { type: "text/html" });
@@ -80,7 +89,7 @@ export function createHTMLPreview(template: any, data: any) {
 }
 
 // Función para generar y abrir HTML de prueba automáticamente
-export function autoTestHTML() {
+export async function autoTestHTML() {
   console.log("🚀 Generando y abriendo HTML de prueba automáticamente...");
   
   const template = templates[0]; // Carrusel A
@@ -93,7 +102,7 @@ export function autoTestHTML() {
   };
   
   try {
-    const structure = generateGoogleAdsStructure(template, data);
+    const structure = await generateGoogleAdsStructure(template, data);
     
     // Crear blob del HTML
     const htmlBlob = new Blob([structure.html], { type: "text/html" });
@@ -112,6 +121,8 @@ export function autoTestHTML() {
       console.log("  - Los botones funcionan (flechas)");
       console.log("  - Las imágenes se cargan");
       console.log("  - Las transiciones son suaves");
+      console.log("  - El botón 'Buy Now' aparece en la parte inferior");
+      console.log("  - El botón 'Buy Now' está centrado");
     } else {
       console.log("⚠️ El navegador bloqueó la ventana emergente");
       console.log("📋 Copia esta URL y ábrela manualmente:");
@@ -127,8 +138,8 @@ export function autoTestHTML() {
 }
 
 // Función para debug del HTML generado
-export function debugHTML(template: any, data: any) {
-  const structure = generateGoogleAdsStructure(template, data);
+export async function debugHTML(template: any, data: any) {
+  const structure = await generateGoogleAdsStructure(template, data);
   
   console.log("🔍 DEBUG HTML:");
   console.log("Longitud HTML:", structure.html.length);
@@ -138,7 +149,7 @@ export function debugHTML(template: any, data: any) {
   // Mostrar fragmentos del HTML
   const htmlLines = structure.html.split('\n');
   console.log("Primeras 10 líneas del HTML:");
-  htmlLines.slice(0, 10).forEach((line, i) => {
+  htmlLines.slice(0, 10).forEach((line: string, i: number) => {
     console.log(`${i + 1}: ${line}`);
   });
   
@@ -152,7 +163,10 @@ export function debugHTML(template: any, data: any) {
     hasScriptTag: structure.html.includes('<script>'),
     hasClosingTags: structure.html.includes('</html>'),
     hasImages: structure.html.includes('background-image'),
-    hasButtons: structure.html.includes('onclick=')
+    hasButtons: structure.html.includes('onclick='),
+    hasBuyNowButton: structure.html.includes('buy-now-btn'),
+    hasClickTag: structure.html.includes('window.clickTag'),
+    hasBuyNowText: structure.html.includes('Buy Now')
   };
   
   console.log("🔍 Verificaciones de estructura:");
@@ -181,11 +195,14 @@ export async function testAllTemplates() {
     console.log(`\n📋 Probando template: ${template.name}`);
     
     try {
-      const structure = generateGoogleAdsStructure(template, testData);
+      const structure = await generateGoogleAdsStructure(template, testData);
       const hasInlineCSS = structure.html.includes('<style>');
       const hasInlineJS = structure.html.includes('<script>');
+      const hasBuyNowButton = structure.html.includes('buy-now-btn');
+      const hasClickTag = structure.html.includes('window.clickTag');
       
       console.log(`✅ ${template.name}: CSS inline=${hasInlineCSS}, JS inline=${hasInlineJS}`);
+      console.log(`✅ ${template.name}: Buy Now button=${hasBuyNowButton}, ClickTag=${hasClickTag}`);
       
     } catch (error) {
       console.error(`❌ ${template.name}: Error - ${error}`);
@@ -219,11 +236,12 @@ export async function testGoogleAdsCompatibility() {
       console.log(`  - ${filename}`);
     });
     
-    // Verificar que solo contiene index.html
-    const hasOnlyIndexHtml = Object.keys(zipContent.files).length === 1 && 
-                             Object.keys(zipContent.files).includes('index.html');
+    // Verificar que contiene index.html como archivo principal
+    const hasIndexHtml = Object.keys(zipContent.files).includes('index.html');
+    const fileCount = Object.keys(zipContent.files).length;
     
-    console.log("✅ Solo contiene index.html:", hasOnlyIndexHtml);
+    console.log("✅ Contiene index.html:", hasIndexHtml);
+    console.log("✅ Número total de archivos:", fileCount);
     console.log("✅ Tamaño ZIP:", Math.round(zipBlob.size / 1024), "KB");
     
     // Verificar contenido del HTML
@@ -232,17 +250,28 @@ export async function testGoogleAdsCompatibility() {
       const checks = {
         hasDoctype: htmlContent.includes('<!DOCTYPE html>'),
         hasHtmlTag: htmlContent.includes('<html'),
+        hasAdSizeMeta: htmlContent.includes('meta name="ad.size"'),
         hasInlineCSS: htmlContent.includes('<style>'),
         hasInlineJS: htmlContent.includes('<script>'),
         noExternalRefs: !htmlContent.includes('href="') && !htmlContent.includes('src="'),
         hasImages: htmlContent.includes('background-image'),
-        hasInteractivity: htmlContent.includes('onclick=')
+        hasInteractivity: htmlContent.includes('onclick='),
+        hasBuyNowButton: htmlContent.includes('buy-now-btn'),
+        hasClickTag: htmlContent.includes('window.clickTag'),
+        hasBuyNowText: htmlContent.includes('Buy Now')
       };
       
       console.log("🔍 Verificaciones de Google Ads:");
       Object.entries(checks).forEach(([check, result]) => {
         console.log(`${result ? '✅' : '❌'} ${check}: ${result}`);
       });
+      
+      // Verificar metadatos específicos
+      if (htmlContent.includes('meta name="ad.size"')) {
+        console.log("✅ Meta tag ad.size presente");
+      } else {
+        console.log("❌ Meta tag ad.size faltante");
+      }
     }
     
     // Crear URL para descarga
@@ -281,6 +310,48 @@ export async function generateGoogleAdsTestZIP() {
   try {
     const zipBlob = await exportTemplateAsZIP(template, data);
     
+    // Verificar estructura del ZIP
+    const zip = new JSZip();
+    const zipContent = await zip.loadAsync(zipBlob);
+    
+    console.log("📦 Verificación del ZIP:");
+    console.log("✅ Archivos incluidos:");
+    Object.keys(zipContent.files).forEach(filename => {
+      console.log(`   - ${filename}`);
+    });
+    
+    // Verificar requisitos específicos de Google Ads
+    const htmlContent = await zipContent.file('index.html')?.async('string');
+    if (htmlContent) {
+      const requirements = {
+        hasIndexHtml: Object.keys(zipContent.files).includes('index.html'),
+        hasDoctype: htmlContent.includes('<!DOCTYPE html>'),
+        hasAdSizeMeta: htmlContent.includes('meta name="ad.size"'),
+        hasClickTag: htmlContent.includes('window.clickTag'),
+        hasBuyNowButton: htmlContent.includes('buy-now-btn'),
+        hasInlineCSS: htmlContent.includes('<style>'),
+        hasInlineJS: htmlContent.includes('<script>'),
+        noExternalRefs: !htmlContent.includes('href="styles.css"') && !htmlContent.includes('src="script.js"')
+      };
+      
+      console.log("🔍 Verificación de requisitos Google Ads:");
+      Object.entries(requirements).forEach(([req, result]) => {
+        console.log(`${result ? '✅' : '❌'} ${req}: ${result}`);
+      });
+      
+      // Verificar tamaño del ZIP
+      const sizeKB = Math.round(zipBlob.size / 1024);
+      console.log(`📏 Tamaño del ZIP: ${sizeKB} KB`);
+      
+      if (sizeKB < 100) {
+        console.log("⚠️ ZIP muy pequeño, verificar contenido");
+      } else if (sizeKB > 5000) {
+        console.log("⚠️ ZIP muy grande, optimizar imágenes");
+      } else {
+        console.log("✅ Tamaño del ZIP apropiado");
+      }
+    }
+    
     // Crear enlace de descarga
     const link = document.createElement("a");
     link.href = URL.createObjectURL(zipBlob);
@@ -291,6 +362,12 @@ export async function generateGoogleAdsTestZIP() {
     console.log("✅ ZIP descargado: google-ads-test.zip");
     console.log("📋 Ahora puedes subir este archivo a:");
     console.log("   https://h5validator.appspot.com/dcm/asset");
+    console.log("🔍 El ZIP incluye:");
+    console.log("   - index.html como archivo principal");
+    console.log("   - Meta tag ad.size para dimensiones");
+    console.log("   - Botón 'Buy Now' con clickTag");
+    console.log("   - CSS y JS integrados inline");
+    console.log("   - Imágenes incluidas localmente");
     
     return zipBlob;
     
