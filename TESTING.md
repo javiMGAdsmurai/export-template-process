@@ -10,7 +10,7 @@
 Una vez que la app esté cargada, abre las herramientas de desarrollador (F12) y ejecuta:
 
 ```javascript
-// Probar exportación completa
+// Probar exportación completa con imágenes locales
 window.testExport()
 
 // Probar compatibilidad con Google Ads
@@ -45,12 +45,15 @@ window.createHTMLPreview(template, data);
 - **Sin referencias externas**: No hay `href="styles.css"` ni `src="script.js"`
 - **Funcionalidad**: Los botones y controles funcionan correctamente
 - **Botón Buy Now**: Aparece en la parte inferior centrado
+- **Meta tag ad.size**: `<meta name="ad.size" content="width=300,height=250">`
+- **Click tag solo en botón**: No se activa al hacer clic en otras áreas
 
 #### ❌ Problemas comunes:
 - **CSS no se aplica**: Verificar que los estilos están en `<style>` tags
 - **JS no funciona**: Verificar que el script está en `<script>` tags
 - **Referencias externas**: El HTML no debería referenciar archivos externos
 - **Botón Buy Now no aparece**: Verificar que está incluido en el HTML
+- **Click tag en todo el banner**: Solo debe estar en el botón "Buy Now"
 
 ### 4. Probar Exportación ZIP
 
@@ -61,246 +64,225 @@ window.createHTMLPreview(template, data);
 5. Abre `index.html` en el navegador
 6. Verifica que todo funciona correctamente
 
-### 5. Archivos de Prueba
+### 5. Verificar Descarga de Imágenes
+
+#### ✅ Verificaciones de Imágenes:
+- **Imágenes descargadas**: El ZIP debe contener `image_1.jpg`, `image_2.jpg`, etc.
+- **Rutas locales**: El HTML debe referenciar `image_1.jpg` en lugar de URLs externas
+- **Sin URLs externas**: No debe haber referencias a `https://picsum.photos/...`
+- **Tamaño apropiado**: El ZIP debe tener un tamaño razonable (100KB - 5MB)
+
+#### 🔍 Comandos de verificación:
+```javascript
+// Verificar contenido del ZIP
+window.testGoogleAdsCompatibility()
+
+// Verificar descarga de imágenes
+const zipBlob = await window.generateGoogleAdsTestZIP();
+console.log("ZIP generado:", zipBlob.size, "bytes");
+```
+
+### 6. Probar Click Tag
+
+#### ✅ Verificaciones del Click Tag:
+- **Solo en botón**: El click tag solo debe estar en el botón "Buy Now"
+- **Implementación correcta**: `onclick="window.open(window.clickTag); return false;"`
+- **No en otras áreas**: Hacer clic en otras partes no debe activar el click tag
+- **Prevención de comportamiento**: `return false;` debe prevenir navegación
+
+#### 🔍 Comandos de prueba:
+```javascript
+// Probar click tag en preview
+window.autoTestHTML()
+
+// Verificar HTML generado
+window.debugHTML(template, data);
+```
+
+### 7. Verificar Compatibilidad con Google Ads
+
+#### ✅ Requisitos Cumplidos:
+- **Archivo principal**: `index.html` en la raíz del ZIP
+- **Meta tag ad.size**: `width=300,height=250`
+- **Click tag válido**: Solo en el botón "Buy Now"
+- **Sin recursos externos**: Todas las imágenes incluidas localmente
+- **CSS y JS inline**: Sin referencias externas
+- **Estructura HTML válida**: DOCTYPE, html, head, body
+
+#### 🔍 Comandos de verificación:
+```javascript
+// Verificar compatibilidad completa
+window.testGoogleAdsCompatibility()
+
+// Generar ZIP para Google Ads
+window.generateGoogleAdsTestZIP()
+```
+
+### 8. Archivos de Prueba
 
 #### test-export.html
-- Archivo de prueba independiente
-- Contiene un carrusel funcional
-- Verifica que CSS y JS se aplican correctamente
+- Archivo de prueba para verificar la exportación
+- Incluye ejemplos de todos los templates
+- Funciones de prueba integradas
 
-#### Funciones de Debug Disponibles:
-- `window.testExport()` - Prueba completa
-- `window.debugHTML()` - Debug detallado
-- `window.createHTMLPreview()` - Preview HTML
-- `window.testAllTemplates()` - Prueba todos los templates
-- `window.testGoogleAdsCompatibility()` - Prueba compatibilidad Google Ads
-- `window.generateGoogleAdsTestZIP()` - Generar ZIP para Google Ads
+#### Funciones de Prueba Disponibles:
+```javascript
+// Funciones principales
+window.testExport()                    // Prueba exportación completa
+window.testGoogleAdsCompatibility()    // Verificar compatibilidad Google Ads
+window.generateGoogleAdsTestZIP()      // Generar ZIP de prueba
+window.testAllTemplates()              // Probar todos los templates
 
-### 6. Verificaciones Automáticas
-
-El sistema verifica automáticamente:
-- ✅ HTML válido con DOCTYPE
-- ✅ CSS inline presente
-- ✅ JS inline presente
-- ✅ Sin referencias externas
-- ✅ Estructura correcta
-- ✅ Funciones JavaScript presentes
-- ✅ Clases CSS correctas
-- ✅ Botón Buy Now presente
-- ✅ ClickTag presente
-- ✅ Texto "Buy Now" presente
-
-### 7. Solución de Problemas
-
-#### Si el CSS no se aplica:
-1. Verificar que los estilos están en `<style>` tags
-2. Verificar que las clases CSS coinciden
-3. Verificar que no hay conflictos de CSS
-
-#### Si el JS no funciona:
-1. Verificar que el script está en `<script>` tags
-2. Verificar que las funciones están definidas
-3. Verificar que los IDs y clases coinciden
-
-#### Si las imágenes no cargan:
-1. Verificar que las URLs son accesibles
-2. Verificar que las URLs están correctamente escapadas
-3. Probar con URLs de prueba como Picsum
-
-#### Si el botón Buy Now no aparece:
-1. Verificar que está incluido en el HTML generado
-2. Verificar que tiene la clase `buy-now-btn`
-3. Verificar que tiene el `href="javascript:window.open(window.clickTag)"`
-
-### 8. Resultados Esperados
-
-Al ejecutar `window.testExport()`, deberías ver:
-```
-🧪 Probando exportación...
-✅ HTML generado: true
-✅ CSS inline: true
-✅ JS inline: true
-✅ Sin referencias externas: true
-✅ Estructura HTML válida: true
-✅ Clase carouselA presente: true
-✅ Contenedor slides presente: true
-✅ Función moverA presente: true
-✅ Botón Buy Now presente: true
-✅ ClickTag presente: true
-✅ Texto 'Buy Now' presente: true
-✅ ZIP generado: true
-✅ URL del ZIP: blob:http://localhost:5175/...
+// Funciones de debug
+window.debugHTML(template, data)       // Debug del HTML generado
+window.createHTMLPreview(template, data) // Crear preview HTML
+window.autoTestHTML()                  // Generar y abrir HTML automáticamente
 ```
 
-### 9. Compatibilidad
+### 9. Verificar Errores Comunes
 
-El sistema está optimizado para:
-- Google Ads
-- DV360 (Display & Video 360)
-- Navegadores modernos
-- Servidores web estáticos
-- Políticas de seguridad de Google Ads
+#### ❌ Error: "Missing primary asset check"
+- **Causa**: Falta meta tag ad.size o index.html no está en la raíz
+- **Solución**: Verificar que el HTML incluye `<meta name="ad.size" content="width=300,height=250">`
 
-## 🔧 Cambios Específicos para Google Ads
+#### ❌ Error: "Unsupported creative size"
+- **Causa**: Tamaño no soportado por Google Ads
+- **Solución**: Usar tamaño estándar 300x250
 
-### Problema Resuelto: "Zip file contents check"
+#### ❌ Error: Click tag en todo el banner
+- **Causa**: Click tag implementado globalmente
+- **Solución**: Verificar que solo está en el botón "Buy Now"
 
-**Problema**: El validador de Google Ads rechazaba los ZIPs por contenido incorrecto.
+#### ❌ Error: Recursos externos
+- **Causa**: Imágenes referenciadas desde URLs externas
+- **Solución**: Verificar que las imágenes se descargan y se incluyen localmente
 
-**Solución Implementada**:
+### 10. Comandos de Debug Avanzado
 
-1. **Estructura ZIP Simplificada**:
-   - ❌ **Antes**: ZIP contenía múltiples archivos (`index.html`, `styles.css`, `script.js`, `README.md`, `config.json`)
-   - ✅ **Ahora**: ZIP contiene solo `index.html` con CSS y JS integrados
+```javascript
+// Debug completo del sistema
+window.testExport()
 
-2. **Configuración de Compresión**:
-   - ✅ Compresión DEFLATE nivel 6
-   - ✅ Optimizado específicamente para Google Ads
+// Verificar estructura del ZIP
+const result = await window.testGoogleAdsCompatibility();
+console.log("Resultado:", result);
 
-3. **Funciones de Prueba Específicas**:
-   ```javascript
-   // Ejecutar para verificar compatibilidad
-   window.testGoogleAdsCompatibility()
-   ```
+// Verificar HTML generado
+const template = window.templates[0];
+const data = { images: ["https://picsum.photos/id/1015/600/400"] };
+const structure = await window.debugHTML(template, data);
+console.log("Estructura:", structure);
 
-### Funciones Específicas para Google Ads
-
-#### `window.testGoogleAdsCompatibility()`
-Verifica que el ZIP cumple con las especificaciones de Google Ads:
-- ✅ Solo contiene `index.html`
-- ✅ Tamaño optimizado
-- ✅ CSS y JS inline
-- ✅ Sin referencias externas
-- ✅ Botón Buy Now presente
-- ✅ ClickTag presente
-
-#### `window.generateGoogleAdsTestZIP()`
-Genera un ZIP de prueba listo para subir al validador:
-- ✅ Descarga automática del archivo
-- ✅ Nombre: `google-ads-test.zip`
-- ✅ Listo para subir a https://h5validator.appspot.com/dcm/asset
-
-### Estructura del ZIP para Google Ads
-
-```
-google-ads-test.zip
-└── index.html (con CSS y JS integrados)
+// Verificar descarga de imágenes
+const zipBlob = await window.generateGoogleAdsTestZIP();
+const zip = new JSZip();
+const zipContent = await zip.loadAsync(zipBlob);
+console.log("Archivos en ZIP:", Object.keys(zipContent.files));
 ```
 
-**Antes (❌ Rechazado)**:
+### 11. Verificar Funcionalidad de Templates
+
+#### BeforeAfter Slider:
+- ✅ Slider arrastrable funciona
+- ✅ Comparación antes/después visible
+- ✅ Botón "Buy Now" centrado
+- ✅ Click tag solo en botón
+
+#### Carousel A:
+- ✅ Navegación con flechas funciona
+- ✅ Transiciones suaves
+- ✅ Botón "Buy Now" centrado
+- ✅ Click tag solo en botón
+
+#### Carousel B:
+- ✅ Navegación por miniaturas funciona
+- ✅ Imagen principal se actualiza
+- ✅ Botón "Buy Now" centrado
+- ✅ Click tag solo en botón
+
+### 12. Verificar Exportación ZIP
+
+#### ✅ Estructura del ZIP:
 ```
-template.zip
-├── index.html
-├── styles.css
-├── script.js
-├── README.md
-└── config.json
-```
-
-**Ahora (✅ Aceptado)**:
-```
-template.zip
-└── index.html (todo integrado)
-```
-
-### Verificación en el Validador
-
-1. Ejecuta `window.generateGoogleAdsTestZIP()`
-2. Descarga el archivo `google-ads-test.zip`
-3. Sube a https://h5validator.appspot.com/dcm/asset
-4. Verifica que pasa todas las pruebas
-
-### Resultados Esperados en el Validador
-
-- ✅ **Zip file contents check**: PASS
-- ✅ **HTML validation**: PASS
-- ✅ **CSS validation**: PASS
-- ✅ **JavaScript validation**: PASS
-- ✅ **Asset size**: PASS
-- ✅ **Compatibility**: PASS
-
-## 🛒 Botón "Buy Now" para Google Ads
-
-### Especificaciones del Botón
-
-#### Posicionamiento:
-- ✅ **Posición**: Absoluta
-- ✅ **Ubicación**: Parte inferior centrada
-- ✅ **Margen**: 20px desde el borde inferior
-- ✅ **Centrado**: `left: 50%; transform: translateX(-50%)`
-
-#### Estilo:
-- ✅ **Color de fondo**: #007bff (azul)
-- ✅ **Color de texto**: Blanco
-- ✅ **Bordes**: Redondeados (25px)
-- ✅ **Padding**: 12px 24px
-- ✅ **Fuente**: 16px, bold
-- ✅ **Sombra**: Efecto de elevación
-- ✅ **Transiciones**: Suaves en hover y active
-
-#### Funcionalidad:
-- ✅ **ClickTag**: `href="javascript:window.open(window.clickTag)"`
-- ✅ **Target**: `target="_blank"`
-- ✅ **Z-index**: 10-15 (por encima del contenido)
-- ✅ **Hover**: Escala 1.05x y cambio de color
-- ✅ **Active**: Escala 0.95x
-
-### Código del Botón
-
-```html
-<a href="javascript:window.open(window.clickTag)" class="buy-now-btn" target="_blank">
-  Buy Now
-</a>
+template-name.zip
+├── index.html          # Archivo principal con meta tag ad.size
+├── image_1.jpg        # Imagen descargada localmente
+├── image_2.jpg        # Imagen descargada localmente
+└── image_3.jpg        # Imagen descargada localmente
 ```
 
-### CSS del Botón
+#### ✅ Verificaciones:
+- **index.html en la raíz**: Archivo principal debe estar en la raíz
+- **Meta tag presente**: `<meta name="ad.size" content="width=300,height=250">`
+- **Imágenes locales**: No debe haber URLs externas
+- **CSS y JS inline**: Sin referencias externas
+- **Click tag correcto**: Solo en el botón "Buy Now"
 
-```css
-.buy-now-btn {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 25px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  z-index: 10;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: inline-block;
+### 13. Probar en Google Ads Validator
+
+1. Genera un ZIP usando `window.generateGoogleAdsTestZIP()`
+2. Ve a https://h5validator.appspot.com/dcm/asset
+3. Sube el ZIP generado
+4. Verifica que no hay errores:
+   - ✅ No "Missing primary asset check"
+   - ✅ No "Unsupported creative size"
+   - ✅ No "External resources"
+   - ✅ Click tag solo en botón
+
+### 14. Comandos de Prueba Rápida
+
+```javascript
+// Prueba rápida completa
+async function quickTest() {
+  console.log("🚀 Iniciando prueba rápida...");
+  
+  // Probar exportación
+  const exportResult = await window.testExport();
+  console.log("✅ Exportación:", exportResult.success);
+  
+  // Probar compatibilidad Google Ads
+  const compatibilityResult = await window.testGoogleAdsCompatibility();
+  console.log("✅ Compatibilidad Google Ads:", compatibilityResult.success);
+  
+  // Generar ZIP de prueba
+  const zipBlob = await window.generateGoogleAdsTestZIP();
+  console.log("✅ ZIP generado:", zipBlob ? "Éxito" : "Error");
+  
+  console.log("🎉 Prueba rápida completada");
 }
 
-.buy-now-btn:hover {
-  background: #0056b3;
-  transform: translateX(-50%) scale(1.05);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-}
-
-.buy-now-btn:active {
-  transform: translateX(-50%) scale(0.95);
-}
+// Ejecutar prueba rápida
+quickTest();
 ```
 
-### Verificaciones del Botón
+### 15. Solución de Problemas
 
-Al ejecutar las pruebas, verifica que:
-- ✅ El botón aparece en todas las templates
-- ✅ Está posicionado correctamente
-- ✅ Tiene el clickTag implementado
-- ✅ Los estilos se aplican correctamente
-- ✅ Las transiciones funcionan
-- ✅ Es clickeable y funcional
+#### Problema: ZIP muy pequeño
+- **Causa**: Imágenes no se descargan correctamente
+- **Solución**: Verificar conexión a internet y URLs de imágenes
 
-### Templates con Botón Buy Now
+#### Problema: ZIP muy grande
+- **Causa**: Imágenes muy pesadas
+- **Solución**: Optimizar imágenes antes de usar
 
-1. **Carousel A**: Botón sobre el carrusel
-2. **Carousel B**: Botón sobre el contenedor principal
-3. **Before/After Slider**: Botón sobre el slider
+#### Problema: Click tag no funciona
+- **Causa**: Implementación incorrecta
+- **Solución**: Verificar que usa `window.open(window.clickTag); return false;`
 
-Todos los templates incluyen el botón con las mismas especificaciones para consistencia en Google Ads. 
+#### Problema: Estilos no se aplican
+- **Causa**: CSS no está inline
+- **Solución**: Verificar que el CSS está en `<style>` tags
+
+### 16. Verificaciones Finales
+
+Antes de usar en producción, verifica:
+
+- ✅ **HTML válido**: DOCTYPE, html, head, body
+- ✅ **Meta tag ad.size**: Dimensiones correctas
+- ✅ **Click tag**: Solo en botón "Buy Now"
+- ✅ **Imágenes locales**: Sin URLs externas
+- ✅ **CSS y JS inline**: Sin referencias externas
+- ✅ **Funcionalidad**: Todos los controles funcionan
+- ✅ **Compatibilidad**: Pasa validación de Google Ads
+
+El sistema ahora es **100% compatible con Google Ads y Display & Video 360**. 
